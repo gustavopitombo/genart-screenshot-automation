@@ -1,5 +1,7 @@
 import time
 import os
+import threading
+import itertools
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -14,7 +16,7 @@ URL = "http://google.com"
 outputFolder = './output' 
 
 # number of outputs to generate
-editions = 256 
+editions = 256
 
 # delay in seconds to wait for the page to load
 delay = 3 
@@ -26,6 +28,16 @@ isExist = os.path.exists(outputFolder)
 if not isExist:
     os.makedirs(outputFolder)
 
+
+def loading_animation(stop_event):
+    spinner = itertools.cycle(["-", "\\", "|", "/"])
+    while not stop_event.is_set():
+        print(f"\rRunning {next(spinner)}", end="", flush=True)
+        time.sleep(0.1)
+
+    print("\rDone!     ", end="", flush=True) 
+
+    
 def genartScreenshot(eds=None):
     # Set up Chrome options
     options = Options()
@@ -45,10 +57,19 @@ def genartScreenshot(eds=None):
     driver.set_window_size(1200, 1200)
     driver.get(URL)
 
+    # Start loading animation in a separate thread
+    stop_event = threading.Event()
+    animation_thread = threading.Thread(target=loading_animation, args=(stop_event,))
+    animation_thread.start()
+
     # Wait for the page to load
     time.sleep(delay)
 
     take_screen_shot(driver, eds)
+
+    # Stop animation
+    stop_event.set()
+    animation_thread.join()
 
 
 def take_screen_shot(driver, eds):
