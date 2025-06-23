@@ -16,7 +16,7 @@ URL = "http://google.com"
 outputFolder = './output' 
 
 # number of outputs to generate
-editions = 256
+editions = 3
 
 # delay in seconds to wait for the page to load
 delay = 3 
@@ -42,6 +42,7 @@ def genartScreenshot(eds=None):
     # Set up Chrome options
     options = Options()
     options.add_argument("--headless")  # Run in headless mode
+    options.add_argument("--window-size=1500,1500")
     options.add_argument("--no-sandbox")  # Helps in some environments
     options.add_argument("--disable-dev-shm-usage")  # Fixes some resource issues
 
@@ -51,10 +52,6 @@ def genartScreenshot(eds=None):
 
     # Initialize Chrome browser
     driver = webdriver.Chrome(service=service, options=options)
-    driver.set_window_position(0, 0)
-
-    # Set the window size, you can change the numbers to your desired size
-    driver.set_window_size(1200, 1200)
     driver.get(URL)
 
     # Start loading animation in a separate thread
